@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<title>lone empltz</title>
+		<link rel='stylesheet' href='/public/stylesheets/style.css' />
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.css" />
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.5.min.js"></script>
+        <script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+        <script type="text/javascript" src="code.js"></script>
+		<script type="text/javascript" src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>
+	</head>
+	<body>
+	<!-- Start of first page -->
+
+<div data-role="page" id="list">
+
+    <div data-role="header">
+		<h1>lone empltz</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+		<ul data-role="listview" data-inset="true" data-split-icon="gear" data-split-theme="c" data-dividertheme="b" data-split-icon="gear"> 
+			<li id="templateList" data-role="list-divider">Email Templates</li>
+			<li data-theme="a"><a href="#Add">Add</a></li>
+		</ul>
+        
+
+	</div><!-- /content -->
+
+	<div data-role="footer">
+		<h4>Worksplayz</h4>
+	</div><!-- /header -->
+</div><!-- /page -->
+
+<!-- Start of second page -->
+<div data-role="page">
+
+    <div data-role="header">
+		<h1>Editing <%= plt.name %></h1>
+	</div><!-- /header -->
+
+	<div data-role="content">
+		<form method="post" action="/<%= plt.id %>/edit" accept-charset="utf-8">
+		    <input type="hidden" value="put" name="_method" />
+			<div data-role="fieldcontain">
+			    <label for="name">Name:</label>
+			    <input type="text" name="plt[name]" id="name" value="<%= plt.name %>"  />
+				<label for="template">Template:</label>
+			    <input type="text" name="plt[template]" id="template" value="<%= plt.template %>"  />
+			</div>
+			<button type="submit" value="Save" data-theme="a" >Save</button>
+		</form>
+	</div><!-- /content -->
+
+	<div data-role="footer">
+		<h4>Forking Spoon</h4>
+	</div><!-- /header -->
+</div><!-- /page -->
+	</body>
+
+
+</html>
