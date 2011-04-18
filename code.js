@@ -39,13 +39,12 @@ function delPlt(id) {
 
 function createURL (plt) {
     var url = "";
-    
-    // TODO make this more dynamic in the future
-    
     url += 'mailto:' + plt.To + '?' +
         'subject=' + plt.Subject + '&' +
         'body=' + plt.Body;
     
+    
+    // TODO make this more dynamic in the future
     //var k;
     //for (k in plt) {
     //    if (k != 'id' || 'name') {
@@ -54,7 +53,6 @@ function createURL (plt) {
     //       url += comp;
     //    }
     //}
-    console.log(url);
     return encodeURI(url);
 }
 
@@ -69,6 +67,7 @@ function getPltz() {
             var p = {};
             p = JSON.parse(localStorage.getItem(localStorage.key(j)));
             pltz[i] = {
+                id: p.id,
                 name: p.name,
                 template: createURL(p)
             };
@@ -79,8 +78,6 @@ function getPltz() {
     
     return pltz;
 }
-
-
 
 function countPltz() {
     var count = 0;
@@ -107,7 +104,7 @@ $(function(){
         }
         
         $('.plt').remove();
-        var markup = '<li class="plt" id=${id}><a href=${template}>${name}</a><a class="pltEdit" id=${id} href="#edit" data-rel="dialog" data-transition="pop"></a></li>';
+        var markup = '<li class="plt" id=${id}><a href=${template}>${name}</a><a class="pltEdit" id=${id} href="#edit" data-rel="dialog" data-transition="pop" ></a></li>';
         // Compile the markup as a named template
         $.template( "templatesTemplate", markup );
         // Render the template with the template data and insert
@@ -119,11 +116,13 @@ $(function(){
         $(function(){
             $('a.pltEdit').click(function(event) {
                 editID = $(this).attr('id');
+                console.log(editID);
             });
         });
         
     });
 });
+
 
 $(function(){
     $('form#add').submit(function() {
@@ -149,7 +148,8 @@ $(function(){
                 var name = field.name;
                 plt[name] = field.value;
             });
-            plt.id = $('form#edit').data('id');
+            plt.id = editID;
+            console.log(plt.id);
             savePlt(plt);
             $.mobile.changePage('list');
             return false;
@@ -180,7 +180,7 @@ $(function(){
                     $('.aDeleteBtn').remove();
                 }
 
-                $('.aDeleteBtn').click(function () {
+                $('.aDeleteBtn').bind('tap', function () {
                     var $del = $(this);
                     delPlt($del.attr('id'));
                     $('.aDeleteBtn').remove();
@@ -206,16 +206,20 @@ $('#edit').live('pagebeforecreate',function(event, ui){
                 });
             return html;
             });
-         
+})
+.live('pageshow', function(event, ui){
+
+    $('div#editForm').children().removeAttr('value');
+    
         var plt = JSON.parse(localStorage.getItem('empltz.' + editID));
         jQuery.each(plt, function(k, v){
             var element = '#e' + k;
             $(element).attr('value', plt[k]);
         });
-        editID = -1;
+})
+.live('pagehide', function(){
+    $('a[href="#"]').removeClass('ui-btn-active');
 });
-
-
 
 $('#add').live('pagebeforecreate',function(event, ui){
     
@@ -228,5 +232,8 @@ $('#add').live('pagebeforecreate',function(event, ui){
                 });
             return html;
             });
+})
+.live('pagehide', function(){
+    $('a[href="#"]').removeClass('ui-btn-active');
 });
 
