@@ -1,8 +1,5 @@
-
-
 var init_templates = [
-      { name: 'Running Late', template: 'mailto:runninglate@onmachine.org?subject=Running%20late&amp;body=Lvoe' },
-      { name: 'Home in 5', template: 'mailto:homein5@onmachine.org?subject=Home%20in%205&amp;body=Lvoe' }
+    { name: 'Nice App', To: 'empltzz@onmachine.org', Subject: 'Nice App', Body: 'Yep, I sent the test email'}
 ];
 
 var editID = -1;
@@ -98,9 +95,9 @@ $(document).bind("mobileinit", function(){
 $(function(){
 
     $('#list').live('pageshow',function(event){
-        var count = countPltz();
-        if (count < 1) {
+        if (!localStorage.getItem('initEmpltz')) {
             initTemplates();
+            localStorage.initEmpltz = true;
         }
         
         $('.plt').remove();
@@ -165,7 +162,7 @@ $(function(){
                 $('.plt').bind('swipe', function(e){
                 var $li = $(this);
                 if (!$li.children('.aDeleteBtn')[0]) {
-                    $('.aDeleteBtn').remove();
+                    $('.aDeleteBtn').fadeOut(2000);
                     var $aDeleteBtn = $('<a>Delete</a>')
                         .attr({
                         'class': 'aDeleteBtn ui-btn-up-r',
@@ -184,8 +181,7 @@ $(function(){
                     var $del = $(this);
                     delPlt($del.attr('id'));
                     $('.aDeleteBtn').remove();
-                    event.preventDefault();
-                });
+                  });
             });
     });    
         
