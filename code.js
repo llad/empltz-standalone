@@ -159,37 +159,36 @@ $(function(){
 $(function(){
 
     $('.swipedelete').live('pageshow',function(event, ui){
-                $('.plt').bind('swipe', function(e){
-                var $li = $(this);
-                if (!$li.children('.aDeleteBtn')[0]) {
-                    $('.aDeleteBtn').fadeOut(2000);
-                    var $aDeleteBtn = $('<a>Delete</a>')
-                        .attr({
-                        'class': 'aDeleteBtn ui-btn-up-r',
-                        'href': 'index.html',
-                        'id': $li.attr('id'),
-                        'rel': 'external'
-                    });
-                    $li.prepend($aDeleteBtn);
-                }
-                
-                else {
+        $('.plt').bind('swipe', function(e){
+            var $plt = $(this);
+            if (!$plt.children('.aDeleteBtn')[0]) {
+                $('.swipedelete').bind('tap click', function(e){
                     $('.aDeleteBtn').remove();
-                }
-
-                $('.aDeleteBtn').bind('tap', function () {
+                    $('.swipedelete').unbind('tap click');
+                    return false;
+                });
+                
+                $('.aDeleteBtn').remove();
+                var $aDeleteBtn = $('<a>Delete</a>')
+                    .attr({
+                    'class': 'aDeleteBtn ui-btn-up-r',
+                    'id': $plt.attr('id')
+                });
+                $plt.prepend($aDeleteBtn);
+                $('.aDeleteBtn').bind('tap click', function () {
+                    event.preventDefault();
                     var $del = $(this);
                     delPlt($del.attr('id'));
-                    $('.aDeleteBtn').remove();
-                  });
-            });
+                    $del.parent().remove();
+                });
+            }    
+            else {
+                $('.aDeleteBtn').remove();
+                $('.plt').unbind('tap click');
+            }
+        });
     });    
-        
-          
 });
-
-
-// TODO Figure out why the close button stays active after closing once.
 
 $('#edit').live('pagebeforecreate',function(event, ui){
     
@@ -198,7 +197,14 @@ $('#edit').live('pagebeforecreate',function(event, ui){
                     '<input class="auto" type="text" name="name" id="ename" value=""  />';
             jQuery.each(components, function(k, v){
                 html += '<label for="e' + k + '">' + k + ':</label>' + '\n' +
-                        '<input type="text" name="' + k + '" id="e' + k + '" value=""  />';     
+                        '<input type="';
+                if (v === 'mailto') {
+                    html += 'email';
+                }
+                else {
+                    html += 'text';
+                }
+                html += '" name="' + k + '" id="e' + k + '" value=""  />';     
                 });
             return html;
             });
@@ -224,7 +230,14 @@ $('#add').live('pagebeforecreate',function(event, ui){
                     '<input class="auto" type="text" name="name" id="name" value=""  />';
             jQuery.each(components, function(k, v){
                 html += '<label for="' + k + '">' + k + ':</label>' + '\n' +
-                        '<input type="text" name="' + k + '" id="' + k + '" value=""  />';     
+                        '<input type="';
+                if (v === 'mailto') {
+                    html += 'email';
+                }
+                else {
+                    html += 'text';
+                }
+                html += '" name="' + k + '" id="' + k + '" value=""  />';     
                 });
             return html;
             });
