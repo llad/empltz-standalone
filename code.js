@@ -1,5 +1,5 @@
 var init_templates = [
-    { name: 'Nice App', To: 'empltzz@onmachine.org', Subject: 'Nice App', Body: 'Yep, I sent the test email'}
+    { name: 'Nice App', To: 'empltz@onmachine.org', Subject: 'Nice App', Body: 'Yep, I sent the test email'}
 ];
 
 var editID = -1;

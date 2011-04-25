@@ -9,7 +9,8 @@
         <script type="text/javascript" src="code.js"></script>
 		<script type="text/javascript" src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
 	</head>
-	<body>
+	<body onload="setTimeout(function() { window.scrollTo(0, 1) }, 100);">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     
     
 	<!-- Start of first page -->
@@ -17,7 +18,7 @@
 <div data-role="page" id="list" class="swipedelete" data-theme="d">
 
     <div data-role="header">
-		<h1>empltz for Templates</h1>
+		<h1>empltz</h1>
         <a href="#add" data-rel="dialog" data-icon="plus" class="ui-btn-right" data-iconpos="notext">Add</a>
 	</div><!-- /header -->
     
