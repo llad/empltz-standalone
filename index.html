@@ -12,35 +12,32 @@
 	<body>
     
     
-    
 	<!-- Start of first page -->
 
-<div data-role="page" id="list" class="swipedelete">
+<div data-role="page" id="list" class="swipedelete" data-theme="d">
 
     <div data-role="header">
-		<h1>lone empltz</h1>
+		<h1>empltz for Templates</h1>
+        <a href="#add" data-rel="dialog" data-icon="plus" class="ui-btn-right" data-iconpos="notext">Add</a>
 	</div><!-- /header -->
     
 
 	<div data-role="content">	
-		<ul data-role="listview" data-inset="true" data-split-icon="gear" data-split-theme="c" data-dividertheme="b"> 
-			<li id="templateList" data-role="list-divider">Email Templates</li>
-			<li id="addButton" data-theme="a"><a href="#add" data-rel="dialog">Add</a></li>
+		<ul id="templateList" data-role="listview" data-inset="true" data-split-icon="gear">
+        <li id="listart" data-role="list-divider"></li>
+        <li id="liend" data-role="list-divider"></li>
 		</ul>
-        
+    <p><b>hint:</b> Swipe to delete </p>
 
 	</div><!-- /content -->
 
-	<div data-role="footer">
-		<h4>Worksplayz</h4>
-	</div><!-- /header -->
 </div><!-- /page -->
 
 <!-- Start of second page -->
 <div data-role="page" id="edit">
 
     <div data-role="header">
-		<h1>Editing</h1>
+		<h1>Edit</h1>
 	</div><!-- /header -->
 
 	<div data-role="content">
@@ -51,10 +48,8 @@
 		</form>
 	</div><!-- /content -->
 
-	<div data-role="footer">
-		<h4>Forking Spoon</h4>
-	</div><!-- /header -->
 </div><!-- /page -->
+
 <!-- Start of second page -->
 <div data-role="page" id="add">
 
@@ -70,9 +65,6 @@
 		</form>
 	</div><!-- /content -->
 
-	<div data-role="footer">
-		<h4>Forking Spoon</h4>
-	</div><!-- /header -->
 </div><!-- /page -->
 
 

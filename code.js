@@ -107,7 +107,7 @@ $(function(){
         // Render the template with the template data and insert
         // the rendered HTML under the "templateList" element
         $.tmpl( "templatesTemplate", getPltz() )
-        .insertAfter( "#templateList" );
+        .insertAfter( "#listart" );
         $('.ui-listview').listview('refresh');
         
         $(function(){
@@ -131,7 +131,7 @@ $(function(){
                 plt[name] = field.value;
             });
             savePlt(plt);
-            $.mobile.changePage('list');
+            $.mobile.changePage('list','pop',true);
             return false;
         });
 });
@@ -148,7 +148,7 @@ $(function(){
             plt.id = editID;
             console.log(plt.id);
             savePlt(plt);
-            $.mobile.changePage('list');
+            $.mobile.changePage('list','pop',true);
             return false;
         });
 });
@@ -184,7 +184,7 @@ $(function(){
             }    
             else {
                 $('.aDeleteBtn').remove();
-                $('.plt').unbind('tap click');
+                $('.swipedelete').unbind('tap click');
             }
         });
     });    
