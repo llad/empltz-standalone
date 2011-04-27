@@ -5,7 +5,7 @@ var init_templates = [
 var editID = -1;
 
 var components = {
-    To: 'mailto',
+    To: 'to',
     Subject: 'subject',
     Body: 'body'
 };
@@ -20,6 +20,22 @@ function initTemplates() {
     }
     return true;
 }
+
+function updateNoType() {
+    for (var j = 0; j < localStorage.length; j++) {
+        var key = localStorage.key(j);
+
+        if (key.indexOf('empltz.') !== -1) {
+            var p = {};
+            p = JSON.parse(localStorage.getItem(localStorage.key(j)));
+            p.Type = 'mailto';
+            localStorage[localStorage.key(j)] = JSON.stringify(p);
+        }
+    }
+    
+    return true;
+}
+    
 
 function savePlt(plt) {
     if (!plt.id) {
@@ -36,7 +52,7 @@ function delPlt(id) {
 
 function createURL (plt) {
     var url = "";
-    url += 'mailto:' + plt.To + '?' +
+    url += plt.type + ':' + plt.To + '?' +
         'subject=' + plt.Subject + '&' +
         'body=' + plt.Body;
     
@@ -100,8 +116,13 @@ $(function(){
             localStorage.initEmpltz = true;
         }
         
+        if (!localStorage.getItem('versionEmpltz')) {
+            updateNoType();
+            localStorage.versionEmpltz = '0.8';
+        }
+        
         $('.plt').remove();
-        var markup = '<li class="plt" id=${id}><a href=${template}>${name}</a><a class="pltEdit" id=${id} href="#edit" data-rel="dialog" data-transition="pop" ></a></li>';
+        var markup = '<li class="plt" id=${id}><a href=${template}>${name}</a><a class="pltEdit" id=${id} href="#edit" data-rel="dialog" data-transition="pop" rel="external"></a></li>';
         // Compile the markup as a named template
         $.template( "templatesTemplate", markup );
         // Render the template with the template data and insert
@@ -113,7 +134,6 @@ $(function(){
         $(function(){
             $('a.pltEdit').click(function(event) {
                 editID = $(this).attr('id');
-                console.log(editID);
             });
         });
         
@@ -146,7 +166,6 @@ $(function(){
                 plt[name] = field.value;
             });
             plt.id = editID;
-            console.log(plt.id);
             savePlt(plt);
             $.mobile.changePage('list','pop',true);
             return false;
@@ -190,34 +209,52 @@ $(function(){
     });    
 });
 
+
+var typeChoice = '<fieldset data-role="controlgroup" data-type="horizontal">' +
+            '<legend>Type:</legend>' +
+            '<input type="radio" name="type" id="type-1" value="mailto"/>' +
+            '<label for="type-1">Email</label>' +
+            '<input type="radio" name="type" id="type-2" value="sms"  />' +
+            '<label for="type-2">SMS</label>' +
+        '</fieldset>';
+
+//var typeChoice = '<label for="type">Type:</label>' +
+//	'<select name="type" id="type">' +
+//		'<option value="mailto">Email</option>' +
+//		'<option value="sms">SMS</option>' +
+//	'</select>';
+
+function formHTML() {
+    var html = typeChoice +
+            '<label for="name">Label:</label>' + '\n' +
+            '<input class="auto" type="text" name="name" id="name" value=""  />';
+    jQuery.each(components, function(k, v){
+        html += '<label for="' + k + '">' + k + ':</label>' + '\n' +
+        '<input type="text" name="' + k + '" id="' + k + '" value=""  />';     
+    });
+    return html;
+}
+
+
 $('#edit').live('pagebeforecreate',function(event, ui){
     
-        $('div#editForm').append(function () {
-            var html = '<label for="ename">Name:</label>' + '\n' +
-                    '<input class="auto" type="text" name="name" id="ename" value=""  />';
-            jQuery.each(components, function(k, v){
-                html += '<label for="e' + k + '">' + k + ':</label>' + '\n' +
-                        '<input type="';
-                if (v === 'mailto') {
-                    html += 'email';
-                }
-                else {
-                    html += 'text';
-                }
-                html += '" name="' + k + '" id="e' + k + '" value=""  />';     
-                });
-            return html;
-            });
+        $('div#editForm').append(formHTML());
 })
 .live('pageshow', function(event, ui){
 
-    $('div#editForm').children().removeAttr('value');
+    //$('div#editForm').children().removeAttr('value');
     
-        var plt = JSON.parse(localStorage.getItem('empltz.' + editID));
-        jQuery.each(plt, function(k, v){
-            var element = '#e' + k;
-            $(element).attr('value', plt[k]);
-        });
+    var plt = JSON.parse(localStorage.getItem('empltz.' + editID));
+    jQuery.each(plt, function(k, v){
+        if (k === 'type') {
+            $('input[value="' + plt[k] + '"]').attr("checked",true);
+        }
+        else {
+            var element = '#' + k;
+            $(element).val(plt[k]);
+        }
+    });
+    $("input[type='radio']").checkboxradio("refresh");
 })
 .live('pagehide', function(){
     $('a[href="#"]').removeClass('ui-btn-active');
@@ -225,22 +262,12 @@ $('#edit').live('pagebeforecreate',function(event, ui){
 
 $('#add').live('pagebeforecreate',function(event, ui){
     
-        $('div#addForm').append(function () {
-            var html = '<label for="name">Name:</label>' + '\n' +
-                    '<input class="auto" type="text" name="name" id="name" value=""  />';
-            jQuery.each(components, function(k, v){
-                html += '<label for="' + k + '">' + k + ':</label>' + '\n' +
-                        '<input type="';
-                if (v === 'mailto') {
-                    html += 'email';
-                }
-                else {
-                    html += 'text';
-                }
-                html += '" name="' + k + '" id="' + k + '" value=""  />';     
-                });
-            return html;
-            });
+        $('div#addForm').append(formHTML());
+})
+.live('pageshow', function(event, ui){
+
+    $('div#addForm').children().removeAttr('value');
+
 })
 .live('pagehide', function(){
     $('a[href="#"]').removeClass('ui-btn-active');
