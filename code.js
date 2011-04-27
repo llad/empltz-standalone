@@ -28,7 +28,7 @@ function updateNoType() {
         if (key.indexOf('empltz.') !== -1) {
             var p = {};
             p = JSON.parse(localStorage.getItem(localStorage.key(j)));
-            p.Type = 'mailto';
+            p.type = 'mailto';
             localStorage[localStorage.key(j)] = JSON.stringify(p);
         }
     }
