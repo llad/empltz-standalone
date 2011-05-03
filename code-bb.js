@@ -80,6 +80,7 @@ window.PltView         = Backbone.View.extend({
     // The DOM events specific to an item.
     events: {
         "click .pltEdit"              : "edit"
+        
     //    "click span.todo-destroy"   : "clear",
     //    "keypress .todo-input"      : "updateOnEnter"
     },
@@ -88,17 +89,19 @@ window.PltView         = Backbone.View.extend({
     // a one-to-one correspondence between a **Todo** and a **TodoView** in this
     // app, we set a direct reference on the model for convenience.
     initialize: function() {
+        _.bindAll(this, 'render');
         this.model.view = this;
         //this.model.save({name: "hello"});
+        //this.model.bind('change', this.render);
     },
 
-    // Re-render the contents of the todo item.
+    // TODO figure out why doing a listview refresh here doesn't actually refresh the list.
     render: function() {
         $(this.el).html(this.template(this.model.toJSON()));
-        //this.setContent();
+        $('.ui-listview').listview('refresh');
         return this;
     },
-
+    
     // I think I'm doing this in the template, so no here.
     // To avoid XSS (not that it would be harmful in this particular app),
     // we use `jQuery.text` to set the contents of the todo item.
@@ -110,7 +113,7 @@ window.PltView         = Backbone.View.extend({
     
     // Switch this view into `"editing"` mode, displaying the input field.
     edit: function() {
-        $.mobile.changePage('edit','pop');
+        $.mobile.changePage('edit','pop',false,false);
         var thisPlt = this.model;
         var plt = this.model.toJSON();
         jQuery.each(plt, function(k, v){
@@ -136,7 +139,7 @@ window.PltView         = Backbone.View.extend({
                 // TODO should I use save or not?
                 thisPlt.save(plt);
                 // TODO  we have a page refresh issue.
-                $.mobile.changePage('list','pop',true);
+                $.mobile.changePage('list','pop',true,false);
                 return false;
             });
     },
@@ -182,11 +185,12 @@ window.PltView         = Backbone.View.extend({
     // loading any preexisting todos that might be saved in *localStorage*.
     initialize: function() {
         
-      _.bindAll(this, 'addOne', 'addAll');
+      _.bindAll(this, 'addOne', 'addAll', 'updateList');
 
 
       Pltz.bind('add',     this.addOne);
       Pltz.bind('refresh', this.addAll);
+      Pltz.bind('change', this.updateList);
 
       Pltz.fetch();
       //Pltz.add([{name: 'hello'}]);
@@ -201,10 +205,20 @@ window.PltView         = Backbone.View.extend({
       this.$('#templateList').append(view.render().el);
     },
 
-    // Add all items in the **Todos** collection at once.
+    // adds all on refresh or initial load
     addAll: function() {
       Pltz.each(this.addOne);
     },
+    
+    // if we change one, we have to re-write the list to get jQuery mobile to show correctly.
+    // TODO look for cooler way to do this, see notes on rerender in PltView.
+    updateList: function() {
+        if ($('.ui-listview')[0]) {
+            $('.ui-listview').children().remove();
+        }
+      Pltz.each(this.addOne);
+      $('.ui-listview').listview('refresh');
+    }
 
   });
 
