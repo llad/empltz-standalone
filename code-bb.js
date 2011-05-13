@@ -10,9 +10,9 @@ window.Plt = Backbone.Model.extend({
     // Default attributes for the todo.
     defaults: {
         name: 'Empty plt',
-        To: 'empty@no.email',
-        Subject: 'Empty subject..',
-        Body: 'Empty body'
+        to: 'empty@no.email',
+        subject: 'Empty subject..',
+        body: 'Empty body'
     },
 
     // initize each plt
@@ -61,7 +61,7 @@ window.PltList = Backbone.Collection.extend({
 });
 
 // Create our global collection of **pltz**.
-window.Pltz = new PltList;
+window.Pltz = new PltList();
 
 // Todo Item View
 // --------------
@@ -80,9 +80,6 @@ window.PltView         = Backbone.View.extend({
     // The DOM events specific to an item.
     events: {
         "click .pltEdit"              : "edit"
-        
-    //    "click span.todo-destroy"   : "clear",
-    //    "keypress .todo-input"      : "updateOnEnter"
     },
 
     // The TodoView listens for changes to its model, re-rendering. Since there's
@@ -91,78 +88,58 @@ window.PltView         = Backbone.View.extend({
     initialize: function() {
         _.bindAll(this, 'render');
         this.model.view = this;
-        //this.model.save({name: "hello"});
-        //this.model.bind('change', this.render);
+        this.model.bind('change', this.render);
     },
 
-    // TODO figure out why doing a listview refresh here doesn't actually refresh the list.
     render: function() {
+        $(this.el).removeAttr('class').addClass('plt');
         $(this.el).html(this.template(this.model.toJSON()));
-        $('.ui-listview').listview('refresh');
         return this;
     },
     
-    // I think I'm doing this in the template, so no here.
-    // To avoid XSS (not that it would be harmful in this particular app),
-    // we use `jQuery.text` to set the contents of the todo item.
-    //setContent: function() {
-    //    var content     = this.model.get('content');
-    //    this.$('.todo-content').text(content);
-    //},
 
-    
-    // Switch this view into `"editing"` mode, displaying the input field.
     edit: function() {
-        $.mobile.changePage('edit','pop',false,false);
-        var thisPlt = this.model;
-        var plt = this.model.toJSON();
-        jQuery.each(plt, function(k, v){
-            if (k === 'type') {
-                $('input[value="' + plt[k] + '"]').attr("checked",true);
+        $('form#editForm').unbind('submit.edit');
+        thisPlt = this.model;
+        var plt = thisPlt.toJSON();
+        _.each(plt, function(v, k){
+             if (k === 'type') {
+                $('form#editForm input[value="' + plt[k] + '"]')
+                .attr("checked",true);
             }
             else {
                 var element = '#' + k;
                 $(element).val(plt[k]);
             }
         });
-        $("input[type='radio']").checkboxradio("refresh");
+        $("form#editForm input[type='radio']").checkboxradio();
+        $("form#editForm input[type='radio']").checkboxradio("refresh");
         
         
-        $('form#edit').submit(function() {
-                event.preventDefault();
+        $('form#editForm').bind('submit.edit', function(e) {
                 var fields = $(this).serializeArray();
-                jQuery.each(fields, function(i, field){
+                _.each(fields, function(field, i){
                     var name = field.name;
                     plt[name] = field.value;
                 });
-                
-                // TODO should I use save or not?
                 thisPlt.save(plt);
-                // TODO  we have a page refresh issue.
-                $.mobile.changePage('list','pop',true,false);
+                $.mobile.changePage('list','pop',true);
+                $('this').unbind('submit.edit');
                 return false;
             });
-    },
-
-    // Close the `"editing"` mode, saving changes to the todo.
-    close: function() {
-        this.model.save({content: this.input.val()});
-        $(this.el).removeClass("editing");
-    },
-
-    // If you hit `enter`, we're through editing the item.
-    updateOnEnter: function(e) {
-        if (e.keyCode == 13) this.close();
     },
 
     // Remove this view from the DOM.
     remove: function() {
         $(this.el).remove();
+        Pltz.trigger('change');
     },
 
     // Remove the item, destroy the model.
     clear: function() {
         this.model.clear();
+
+        
     }
 
 });
@@ -171,14 +148,18 @@ window.PltView         = Backbone.View.extend({
 // The Application
   // ---------------
 
-  // Our overall **AppView** is the top-level piece of UI.
-  window.AppView = Backbone.View.extend({
+// Our overall **AppView** is the top-level piece of UI.
+window.AppView = Backbone.View.extend({
     
 
     // Instead of generating a new element, bind to the existing skeleton of
     // the App already present in the HTML.
     el: $("#list"),
 
+    events: {
+        "click #addButton"          : "addPlt"
+    
+    },
 
     // At initialization we bind to the relevant events on the `Todos`
     // collection, when items are added or changed. Kick things off by
@@ -188,21 +169,20 @@ window.PltView         = Backbone.View.extend({
       _.bindAll(this, 'addOne', 'addAll', 'updateList');
 
 
-      Pltz.bind('add',     this.addOne);
+      Pltz.bind('add',    this.addOne);
       Pltz.bind('refresh', this.addAll);
       Pltz.bind('change', this.updateList);
 
       Pltz.fetch();
-      //Pltz.add([{name: 'hello'}]);
 
     },
-
 
     // Add a single todo item to the list by creating a view for it, and
     // appending its element to the `<ul>`.
     addOne: function(plt) {
       var view = new PltView({model: plt});
       this.$('#templateList').append(view.render().el);
+      $('.ui-listview').listview('refresh');
     },
 
     // adds all on refresh or initial load
@@ -210,19 +190,88 @@ window.PltView         = Backbone.View.extend({
       Pltz.each(this.addOne);
     },
     
-    // if we change one, we have to re-write the list to get jQuery mobile to show correctly.
-    // TODO look for cooler way to do this, see notes on rerender in PltView.
+
     updateList: function() {
-        if ($('.ui-listview')[0]) {
-            $('.ui-listview').children().remove();
-        }
-      Pltz.each(this.addOne);
-      $('.ui-listview').listview('refresh');
+        //if ($('.ui-listview')[0]) {
+        //    $('.ui-listview').children().remove();
+        //}
+        
+        //Pltz.each(this.addOne);
+        $('.ui-listview').listview('refresh');
+    },
+    
+    addPlt: function() {
+        var $addform = $('form#addForm');
+        $addform.unbind('submit.add');
+        $addform[0].reset();
+        $('form#addForm input[value="mailto"]').attr("checked",true);
+        $("form#addForm input[type='radio']").checkboxradio();
+        $("form#addForm input[type='radio']").checkboxradio("refresh");
+        $addform.bind('submit.add', function(e) {
+            e.preventDefault();
+            var plt = {};
+            var fields = $(this).serializeArray();
+            _.each(fields, function(field, i){
+                var name = field.name;
+                plt[name] = field.value;
+            });
+            Pltz.create(plt);
+            $.mobile.changePage('list','pop',true);
+            return false;
+        });
     }
 
   });
 
-  // Finally, we kick things off by creating the **App**.
-  window.App = new AppView;
+    // Deal with jQM issue of not deactivating buttons
+    $('*').live('pagehide', function(){
+        $('a[href="#"]').removeClass('ui-btn-active');
+    });
+    
+    
+    // Swipe to Delete
+    // Not a very 'Backbone' implementation but works
+    $('.swipedelete').live('pageshow',function(event, ui){
+        console.log('pageshow');
+        // Trigger a change to refresh page because swiping won't
+        // work after opening and closing a dialog (add or edit).
+        // TODO figure out a better way.
+        //Pltz.trigger('change');
+        
+        $('.plt').bind('swipe', function(e){
+            var $plt = $(this);
+            var id = $plt.find('a.pltLink').attr('id');
+            
+            // if there are 
+            if (!$plt.children('.aDeleteBtn')[0]) {
+                $('.swipedelete').bind('click.delete', function(e){
+                    $('.aDeleteBtn').remove();
+                    $('.swipedelete').unbind('click.delete');
+                    return false;
+                });
+                
+                $('.aDeleteBtn').remove();
+                var $aDeleteBtn = $('<a>Delete</a>')
+                    .attr({
+                    'class': 'aDeleteBtn ui-btn-up-r',
+                    'id': $plt.attr('id')
+                });
+                $plt.prepend($aDeleteBtn);
+                $('.aDeleteBtn').bind('click.delButton', function (e) {
+                    e.preventDefault();
+                    var modelToDel = Pltz.get(id);
+                    modelToDel.clear();
+                });
+            }    
+            else {
+                $('.aDeleteBtn').remove();
+                $('.swipedelete').unbind('click.delete');
+
+            }
+        });
+    });
+
+    // Finally, we kick things off by creating the **App**.
+    window.App = new AppView();
 
 });
