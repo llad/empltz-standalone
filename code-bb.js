@@ -1,3 +1,4 @@
+// Note:  This borrows heavily from the example Todo app in Backbone.js source
 
 
 $(function(){
@@ -6,21 +7,58 @@ $(function(){
     // plt Model
     // ----------
     window.Plt = Backbone.Model.extend({
+        
+        // This creates the mailto or sms URL from the underlying attributes.
+        createURL: function() {
+            plt = this.toJSON();
+            if (!plt.to || !plt.subject || !plt.body) {
+                return 'mailto:empltz@onmachine.org';
+            }
+            var url = "";
+            if (plt.type === 'sms') {
+                url += plt.type + ':' + plt.to + '?';
+            }
+            else {
+                url += plt.type + ':' + plt.to + '?' +
+                'subject=' + plt.subject + '&';
+            }
+            url += 'body=' + plt.body;
+            
+            return encodeURI(url);
+        },
 
         // Default attributes for the todo.
         defaults: {
+            type: 'mailto',
             name: 'Empty plt',
-            to: 'empty@no.email',
-            subject: 'Empty subject..',
-            body: 'Empty body'
+            to: '',
+            subject: '',
+            body: '',
+            url:this.createURL
         },
 
-        // initize each plt
+        // initize each plt with some defaults.
+        // TODO actually check each attribute in defaults and set it if 
         initialize: function() {
-            if (!this.get("name")) {
-                this.set({"name": this.defaults.name});
-
+            ds = this.defaults;
+            for (var k in ds) {
+                if (!this.get(k)) {
+                    obj = {};
+                    obj[k] = ds[k];
+                    this.set(obj);
+                }                
             }
+
+        },
+        
+
+        
+        // parse is called by Backbone before saving, so seems like a good time to add
+        // in the mailto URL for the plt.  However, it is also called before fetching
+        // which we don't really need since it was saved.  Might look at changing this.
+        parse: function(response) {
+            response.set({url: this.createURL(), silent: true});
+            return response;
         },
 
         // Remove this from *localStorage* and delete its view.
@@ -35,7 +73,7 @@ $(function(){
     // plt Collection
     // ---------------
 
-    // The collection of plts is backed by *localStorage* instead of a remote
+    // The collection of items is backed by *localStorage* instead of a remote
     // server.
     window.PltList = Backbone.Collection.extend({
 
@@ -66,7 +104,6 @@ $(function(){
     // Todo Item View
     // --------------
 
-    // The DOM element for a todo item...
     window.PltView         = Backbone.View.extend({
 
 
@@ -79,31 +116,39 @@ $(function(){
 
         // The DOM events specific to an item.
         events: {
-            "click .pltEdit"              : "edit"
+            "click .pltEdit"              : "editForm"
         },
 
-        // The TodoView listens for changes to its model, re-rendering. Since there's
-        // a one-to-one correspondence between a **Todo** and a **TodoView** in this
-        // app, we set a direct reference on the model for convenience.
+
         initialize: function() {
+            
             _.bindAll(this, 'changeRender', 'render');
-            this.model.view = this;
+            
+            // Any changes (edits) to an item need to be re-rendered with a special function
             this.model.bind('change', this.changeRender);
+            
+            // Set this view as the view for the model
+            this.model.view = this;
         },
-
+        
         render: function() {
             $(this.el).html(this.template(this.model.toJSON()));
             return this;
         },
         
+        
+        // On edit have to remove all the jQM classes or jQM won't know that it needs
+        // to be refreshed in listview('refresh')
         changeRender: function() {
             $(this.el).removeAttr('class').addClass('plt');
             this.render();
             return this;
         },
 
-
-        edit: function() {
+        // This supports the edit form
+        editForm: function() {
+            // start out making sure that submit is not bound from earlier calls.
+            // Need to do this because you can close the dialog box without submitting.
             $('form#editForm').unbind('submit.edit');
             thisPlt = this.model;
             var plt = thisPlt.toJSON();
@@ -166,9 +211,6 @@ $(function(){
 
         },
 
-        // At initialization we bind to the relevant events on the `Todos`
-        // collection, when items are added or changed. Kick things off by
-        // loading any preexisting todos that might be saved in *localStorage*.
         initialize: function() {
 
             _.bindAll(this, 'addOne', 'addAll', 'updateList');
@@ -220,6 +262,10 @@ $(function(){
                         var name = field.name;
                         plt[name] = field.value;
                     });
+                    // Add the order
+                    plt.order = Pltz.nextOrder();
+                    
+                    // Create the new plt
                     Pltz.create(plt);
                     $.mobile.changePage('list','pop',true);
                     return false;
@@ -238,6 +284,7 @@ $(function(){
         // Not a very 'Backbone' implementation but works
         $('.swipedelete').live('pageshow',function(event, ui){
             console.log('pageshow');
+            
             // Trigger a change to refresh page because swiping won't
             // work after opening and closing a dialog (add or edit).
             // TODO figure out a better way.
