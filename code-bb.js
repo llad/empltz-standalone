@@ -30,15 +30,14 @@ $(function(){
         // Default attributes for the todo.
         defaults: {
             type: 'mailto',
-            name: 'Empty plt',
-            to: '',
-            subject: '',
-            body: '',
-            url:this.createURL
+            name: 'Empty plt'
+            //to: '',
+            //subject: '',
+            //body: '',
+            //url: '#'
         },
 
         // initize each plt with some defaults.
-        // TODO actually check each attribute in defaults and set it if 
         initialize: function() {
             ds = this.defaults;
             for (var k in ds) {
