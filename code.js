@@ -8,7 +8,7 @@ $(function(){
     // ----------
     window.Plt = Backbone.Model.extend({
 
-        // Default attributes for the todo.
+        // Default attributes for the template (plt).
         defaults: {
             type: 'mailto',
             name: 'Empty plt'
@@ -70,7 +70,7 @@ $(function(){
             return this.last().get('order') + 1;
         },
 
-        // Todos are sorted by their original insertion order.
+        // Plts are sorted by their original insertion order.
         comparator: function(plt) {
             return plt.get('order');
         }
@@ -80,7 +80,7 @@ $(function(){
     // Create our global collection of **pltz**.
     window.Pltz = new PltList();
 
-    // Todo Item View
+    // Item View
     // --------------
 
     window.PltView         = Backbone.View.extend({
@@ -227,8 +227,7 @@ $(function(){
 
         },
 
-        // Add a single todo item to the list by creating a view for it, and
-        // appending its element to the `<ul>`.
+        // Add a single plt right before the ending list divider
         addOne: function(plt) {
             var view = new PltView({model: plt});
             this.$('#liend').before(view.render().el);
@@ -256,6 +255,8 @@ $(function(){
         // trying to write something that will correct them after a removal
         //  this clears everything and re-writes, but can't get the swipe delete to bind
         // after that.
+        // I don't use this since it doesn't work, just added list dividers around the list
+        // and the corners are not an issue.
         updateRemoved: function() {
             if ($('.ui-listview')[0]) {
                    $('.ui-listview').children().remove();
@@ -300,8 +301,9 @@ $(function(){
     // Swipe to Delete
     // ---------------
     // Not a very 'Backbone' implementation but works.
-    // The * is used because tying this to a particular jQM page like #list
-    // would ignore this every other time.
+    // There were many issues binding to particular page IDs or classes
+    // but works if you use * or the jQM class for the page.
+    // This was not an issue in the pre-Backbone implementation.
     $('.ui-page').live('pageshow',function(event, ui){
         console.log('pageshow');
 
