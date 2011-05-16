@@ -337,6 +337,34 @@ $(function(){
             }
         });
     });
+    
+    //update any pre-Backbone plts
+    (function updateOld() {
+        if (!localStorage.versionEmpltz || localStorage.versionEmpltz === '0.8') {
+            for (var j = 0; j < localStorage.length; j++) {
+                var key = localStorage.key(j);
+
+                if (key.indexOf('empltz.') !== -1) {
+                    var p = {};
+                    p = JSON.parse(localStorage.getItem(localStorage.key(j)));
+                    if (p.type === undefined) {
+                        p.type = 'mailto';
+                    }
+                    p.to = p.To;
+                    delete p.To;
+                    p.subject = p.Subject;
+                    delete p.Subject;
+                    p.body = p.Body;
+                    delete p.Body;
+                    p.order = Pltz.nextOrder();
+                    Pltz.create(p);
+                    localStorage.versionEmpltz = '0.9';
+                }
+            }
+        }
+    
+    })(); 
+    
 
     // Finally, we kick things off by creating the **App**.
     window.App = new AppView();
