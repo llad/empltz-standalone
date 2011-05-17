@@ -47,6 +47,29 @@ $(function(){
         }
 
     });
+    
+    // options Model
+    // ----------
+    window.Options = Backbone.Model.extend({
+
+        // Default attributes for the template (plt).
+        defaults: {
+            sms: false
+        },
+
+        // initize each plt with some defaults.
+        initialize: function() {
+            ds = this.defaults;
+            for (var k in ds) {
+                if (!this.get(k)) {
+                    obj = {};
+                    obj[k] = ds[k];
+                    this.set(obj);
+                }                
+            }
+        }
+    });
+    
 
 
     // plt Collection
@@ -79,6 +102,9 @@ $(function(){
 
     // Create our global collection of **pltz**.
     window.Pltz = new PltList();
+    
+    // Create the user Options
+    window.userOptions = new Options();
 
     // Item View
     // --------------
@@ -195,6 +221,7 @@ $(function(){
         }
 
     });
+    
 
 
     // The Application
@@ -209,7 +236,8 @@ $(function(){
         el: $("#list"),
 
         events: {
-            "click #addButton"          : "addPlt"
+            "click #addButton"          : "addPlt",
+            "click #optionsButton"      : "optionsForm"
 
         },
 
@@ -288,6 +316,39 @@ $(function(){
                 $.mobile.changePage('list','pop',true);
                 return false;
             });
+        },
+        
+        optionsForm: function() {
+            // start out making sure that submit is not bound from earlier calls.
+            // Need to do this because you can close the dialog box without submitting.
+            $('form#optionsForm').unbind('submit.options');
+            var opts = myOptions.toJSON();
+            _.each(opts, function(v, k){
+                if (k === 'sms') {
+                    var smsSlider = $("select#slider");
+                    if (v) {
+                        smsSlider[0].selectedIndex = 1;
+                        smsSlider.slider("refresh");
+                    }
+                    else {
+                        smsSlider[0].selectedIndex = 0;
+                        smsSlider.slider("refresh");
+                    }
+                }
+            });
+
+            // TODO -- Left off here with options implementation.
+            $('form#optionForm').bind('submit.edit', function(e) {
+                var fields = $(this).serializeArray();
+                _.each(fields, function(field, i){
+                    var name = field.name;
+                    plt[name] = field.value;
+                });
+                thisPlt.save(plt);
+                $.mobile.changePage('list','pop',true);
+                $('this').unbind('submit.edit');
+                return false;
+            });
         }
 
     });
@@ -305,7 +366,6 @@ $(function(){
     // but works if you use * or the jQM class for the page.
     // This was not an issue in the pre-Backbone implementation.
     $('.ui-page').live('pageshow',function(event, ui){
-        console.log('pageshow');
 
         $('.plt').bind('swipe', function(e){
             var $plt = $(this);
