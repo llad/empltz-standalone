@@ -20,7 +20,7 @@
 
     <div data-role="header">
 		<h1>empltz</h1>
-        <a id="optionButton" href="#options" data-rel="dialog" data-icon="gear" class="ui-btn-left" data-iconpos="notext">Options</a>
+        <a id="optionsButton" href="#options" data-rel="dialog" data-icon="gear" class="ui-btn-left" data-iconpos="notext">Options</a>
         <a id="addButton" href="#add" data-rel="dialog" data-icon="plus" class="ui-btn-right" data-iconpos="notext">Add</a>
 	</div><!-- /header -->
     
@@ -113,9 +113,9 @@
 		<form id="optionsForm" method="get" action="#" accept-charset="utf-8">
 			<div data-role="fieldcontain">
                 <label for="slider">SMS:</label>
-	                <select name="slider" id="slider" data-role="slider">
-		                <option value="off">Off</option>
-		                <option value="on">On</option>
+	                <select name="sms" id="slider" data-role="slider">
+		                <option value="false">Off</option>
+		                <option value="true">On</option>
 	                </select>
                     <p> Turn on if your phone supports SMS URIs.  iPhones don't.</p
 			</div>

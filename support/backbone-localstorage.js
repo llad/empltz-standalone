@@ -24,32 +24,55 @@ _.extend(Store.prototype, {
 
     // Save the current state of the **Store** to *localStorage*.
     save: function() {
+        console.log('save');
+        console.log(JSON.stringify(this.data));
         localStorage.setItem(this.name, JSON.stringify(this.data));
     },
 
     // Add a model, giving it a (hopefully)-unique GUID, if it doesn't already
     // have an id of it's own.
-    create: function(model) {
+    create: function(model,type) {
+        console.log('create');
         if (!model.id) model.id = model.attributes.id = guid();
-        this.data[model.id] = model;
+        if (type === 'aModel') {
+            console.log('modelID ' + model.id);
+            console.log(this.data);
+            this.data = model.toJSON();
+        }
+        else {
+            this.data[model.id] = model;
+        }
         this.save();
         return model;
     },
 
     // Update a model by replacing its copy in `this.data`.
-    update: function(model) {
-        this.data[model.id] = model;
+    update: function(model, type) {
+        if (type === 'aModel') {
+            console.log('update');
+            console.log('model');
+            this.data = model;
+        }
+        else {
+            this.data[model.id] = model;
+        }
         this.save();
         return model;
     },
 
     // Retrieve a model from `this.data` by id.
-    find: function(model) {
+    find: function(model,type) {
+        console.log('find');
+        if (type === 'aModel') {
+            return this.data;
+        }
         return this.data[model.id];
+        
     },
 
     // Return the array of all models currently in storage.
     findAll: function() {
+        console.log('findAll');
         return _.values(this.data);
     },
 
@@ -68,11 +91,27 @@ Backbone.sync = function(method, model, success, error) {
 
     var resp;
     var store = model.localStorage || model.collection.localStorage;
+    var type;
+    var modelID;
+    
+    if (!model.collection) {
+        type = 'aModel';
+        modelID = model.id;
+    } else {
+        type = 'aCollection';
+        modelID = model.id;
+    }
+    
+    console.log(method);
+    console.log(model);
+    console.log(model.id);
+    
+    
 
     switch (method) {
-        case "read":    resp = model.id ? store.find(model) : store.findAll(); break;
-        case "create":  resp = store.create(model);                            break;
-        case "update":  resp = store.update(model);                            break;
+        case "read":    resp = model.id ? store.find(model,type) : store.findAll(); break;
+        case "create":  resp = store.create(model,type);                            break;
+        case "update":  resp = store.update(model,type);                            break;
         case "delete":  resp = store.destroy(model);                           break;
     }
 

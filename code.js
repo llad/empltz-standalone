@@ -17,29 +17,6 @@ $(function(){
             //body: '',
         },
 
-        // initize each plt with some defaults.
-        initialize: function() {
-            ds = this.defaults;
-            for (var k in ds) {
-                if (!this.get(k)) {
-                    obj = {};
-                    obj[k] = ds[k];
-                    this.set(obj);
-                }                
-            }
-
-        },
-        
-
-        
-        // // parse is called by Backbone before saving, so seems like a good time to add
-        // // in the mailto URL for the plt.  However, it is also called before fetching
-        // // which we don't really need since it was saved.  Might look at changing this.
-        // parse: function(response) {
-        //     response.set({url: this.createURL(), silent: true});
-        //     return response;
-        // },
-
         // Remove this from *localStorage* and delete its view.
         clear: function() {
             this.destroy();
@@ -51,25 +28,19 @@ $(function(){
     // options Model
     // ----------
     window.Options = Backbone.Model.extend({
+        
+        localStorage: new Store("empltzOptions"),
 
         // Default attributes for the template (plt).
         defaults: {
             sms: false
-        },
-
-        // initize each plt with some defaults.
-        initialize: function() {
-            ds = this.defaults;
-            for (var k in ds) {
-                if (!this.get(k)) {
-                    obj = {};
-                    obj[k] = ds[k];
-                    this.set(obj);
-                }                
-            }
         }
+
     });
     
+    // Create the user Options
+    window.userOptions = new Options();
+
 
 
     // plt Collection
@@ -102,9 +73,7 @@ $(function(){
 
     // Create our global collection of **pltz**.
     window.Pltz = new PltList();
-    
-    // Create the user Options
-    window.userOptions = new Options();
+
 
     // Item View
     // --------------
@@ -252,6 +221,8 @@ $(function(){
             Pltz.bind('remove', this.updateList);
 
             Pltz.fetch();
+            userOptions.fetch();
+            console.log(userOptions);
 
         },
 
@@ -322,31 +293,35 @@ $(function(){
             // start out making sure that submit is not bound from earlier calls.
             // Need to do this because you can close the dialog box without submitting.
             $('form#optionsForm').unbind('submit.options');
-            var opts = myOptions.toJSON();
+            opts = userOptions.toJSON();
+            console.log(userOptions);
+            console.log('isnew: ' + userOptions.isNew());
             _.each(opts, function(v, k){
+                var smsSlider = $("select#slider");
                 if (k === 'sms') {
-                    var smsSlider = $("select#slider");
+                    
                     if (v) {
-                        smsSlider[0].selectedIndex = 1;
-                        smsSlider.slider("refresh");
+                        smsSlider[0].selectedIndex = 0;
                     }
                     else {
-                        smsSlider[0].selectedIndex = 0;
-                        smsSlider.slider("refresh");
+                        smsSlider[0].selectedIndex = 1;
                     }
+                    smsSlider.slider();
+                    smsSlider.slider("refresh");
                 }
             });
 
-            // TODO -- Left off here with options implementation.
-            $('form#optionForm').bind('submit.edit', function(e) {
+            $('form#optionsForm').bind('submit.options', function(e) {
                 var fields = $(this).serializeArray();
                 _.each(fields, function(field, i){
                     var name = field.name;
-                    plt[name] = field.value;
+                    userOptions.attributes[name] = (field.value === 'true');
                 });
-                thisPlt.save(plt);
+                console.log('isnew2: ' + userOptions.isNew());
+                userOptions.save();
+                console.log(userOptions);          
                 $.mobile.changePage('list','pop',true);
-                $('this').unbind('submit.edit');
+                $('this').unbind('submit.options');
                 return false;
             });
         }
