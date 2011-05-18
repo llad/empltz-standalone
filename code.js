@@ -16,6 +16,18 @@ $(function(){
             //subject: '',
             //body: '',
         },
+        
+        initialize: function() {
+            ds = this.defaults;
+            for (var k in ds) {
+                if (!this.get(k)) {
+                    obj = {};
+                    obj[k] = ds[k];
+                    this.set(obj);
+                }                
+            }
+
+        },
 
         // Remove this from *localStorage* and delete its view.
         clear: function() {
@@ -144,23 +156,87 @@ $(function(){
 
         // This supports the edit form
         editForm: function() {
+            $editform = $('form#editForm');
             // start out making sure that submit is not bound from earlier calls.
             // Need to do this because you can close the dialog box without submitting.
             $('form#editForm').unbind('submit.edit');
             thisPlt = this.model;
             var plt = thisPlt.toJSON();
+            var pltType;
+            
+            // Set the fields to the existing values
             _.each(plt, function(v, k){
                 if (k === 'type') {
                     $('form#editForm input[value="' + plt[k] + '"]')
-                    .attr("checked",true);
+                    .attr('checked',true);
+                    pltType = v;
                 }
-                else {
+                // for SMS, set the value on the right input column
+                else if (k === 'to') {
+                    var toelement;
+                    if (pltType === 'sms') {
+                        toelement = '#tosms';
+                    }
+                    else {
+                        toelement = '#' + k;
+                    }
+                    $(toelement).val(plt[k]);
+                }
+                // for everything else
+                else {  
                     var element = '#' + k;
                     $(element).val(plt[k]);
                 }
             });
-            $("form#editForm input[type='radio']").checkboxradio();
-            $("form#editForm input[type='radio']").checkboxradio("refresh");
+            
+            // if SMS is enabled, show the fieldset and update the values.
+            if (userOptions.get('sms')) {
+                $editform.find('fieldset').show();
+                $("form#editForm input[type='radio']").checkboxradio();
+                $("form#editForm input[type='radio']").checkboxradio("refresh");
+                
+                // Decide which input field to show for "to"
+                // this is complicated by the fact that you can't change the input type dynamically
+                // in at least some browsers.
+                $('#edit').live('pageshow',function(event, ui){
+                    $('form#editForm label[for="tosms"]').show();
+                    $('form#editForm input#tosms').show();
+                    $('form#editForm label[for="to"]').show();
+                    $('form#editForm input#to').show();
+                    if (pltType === 'sms') {
+                        $('form#editForm label[for="to"]').hide();
+                        $('form#editForm input#to').hide();
+                    }
+
+                    if (pltType === 'mailto') {
+                        $('form#editForm label[for="tosms"]').hide();
+                        $('form#editForm input#tosms').hide();
+                    }
+                });
+
+
+                // handle live changes to the type
+                $('form#editForm label[for="sms"]').bind('click.type', function(e) {
+                    $('form#editForm label[for="tosms"]').show();
+                    $('form#editForm input#tosms').show();
+                        $('form#editForm label[for="to"]').hide();
+                        $('form#editForm input#to').hide();
+                });
+
+                $('form#editForm label[for="mailto"]').bind('click.type', function(e) {
+                        $('form#editForm label[for="to"]').show();
+                        $('form#editForm input#to').show();
+                        $('form#editForm label[for="tosms"]').hide();
+                        $('form#editForm input#tosms').hide();
+                });
+                
+            }
+            else {
+                $editform.find('fieldset').hide();
+                $('form#editForm label[for="tosms"]').hide();
+                $('form#editForm input#tosms').hide();
+            }
+            
 
 
             $('form#editForm').bind('submit.edit', function(e) {
@@ -169,6 +245,11 @@ $(function(){
                     var name = field.name;
                     plt[name] = field.value;
                 });
+                // Choose which "to" input to accept
+                if (plt.type === 'sms') {
+                    plt.to = plt.tosms;
+                }
+                delete plt.tosms;
                 thisPlt.save(plt);
                 $.mobile.changePage('list','pop',true);
                 $('this').unbind('submit.edit');
@@ -222,7 +303,6 @@ $(function(){
 
             Pltz.fetch();
             userOptions.fetch();
-            console.log(userOptions);
 
         },
 
@@ -268,9 +348,44 @@ $(function(){
             var $addform = $('form#addForm');
             $addform.unbind('submit.add');
             $addform[0].reset();
-            $('form#addForm input[value="mailto"]').attr("checked",true);
-            $("form#addForm input[type='radio']").checkboxradio();
-            $("form#addForm input[type='radio']").checkboxradio("refresh");
+            
+            // SMS handling, if needed
+            if (userOptions.get('sms')) {
+                $('form#addForm input[value="mailto"]').attr("checked",true);
+                $("form#addForm input[type='radio']").checkboxradio();
+                $("form#addForm input[type='radio']").checkboxradio("refresh");
+                
+                $('#add').live('pageshow',function(event, ui){
+                    $('form#addForm label[for="tosms"]').hide();
+                    $('form#addForm input#tosms').hide();
+                    $('form#addForm label[for="to"]').show();
+                    $('form#addForm input#to').show();
+
+                });
+
+
+                // handle live changes to the type
+                $('form#addForm label[for="sms"]').bind('click.type', function(e) {
+                    $('form#addForm label[for="tosms"]').show();
+                    $('form#addForm input#tosms').show();
+                        $('form#addForm label[for="to"]').hide();
+                        $('form#addForm input#to').hide();
+                });
+
+                $('form#addForm label[for="mailto"]').bind('click.type', function(e) {
+                        $('form#addForm label[for="to"]').show();
+                        $('form#addForm input#to').show();
+                        $('form#addForm label[for="tosms"]').hide();
+                        $('form#addForm input#tosms').hide();
+                });
+            }
+            else {
+                $addform.find('fieldset').hide();
+                $('form#addForm label[for="tosms"]').hide();
+                $('form#addForm input#tosms').hide();
+            }
+            
+
             $addform.bind('submit.add', function(e) {
                 e.preventDefault();
                 var plt = {};
@@ -281,6 +396,12 @@ $(function(){
                 });
                 // Add the order
                 plt.order = Pltz.nextOrder();
+                
+                // Choose which "to" input to accept
+                if (plt.type === 'sms') {
+                    plt.to = plt.tosms;
+                }
+                delete plt.tosms;
                 
                 // Create the new plt
                 Pltz.create(plt);
@@ -294,17 +415,16 @@ $(function(){
             // Need to do this because you can close the dialog box without submitting.
             $('form#optionsForm').unbind('submit.options');
             opts = userOptions.toJSON();
-            console.log(userOptions);
-            console.log('isnew: ' + userOptions.isNew());
+
             _.each(opts, function(v, k){
                 var smsSlider = $("select#slider");
                 if (k === 'sms') {
                     
                     if (v) {
-                        smsSlider[0].selectedIndex = 0;
+                        smsSlider[0].selectedIndex = 1;
                     }
                     else {
-                        smsSlider[0].selectedIndex = 1;
+                        smsSlider[0].selectedIndex = 0;
                     }
                     smsSlider.slider();
                     smsSlider.slider("refresh");
@@ -317,9 +437,7 @@ $(function(){
                     var name = field.name;
                     userOptions.attributes[name] = (field.value === 'true');
                 });
-                console.log('isnew2: ' + userOptions.isNew());
-                userOptions.save();
-                console.log(userOptions);          
+                userOptions.save();     
                 $.mobile.changePage('list','pop',true);
                 $('this').unbind('submit.options');
                 return false;

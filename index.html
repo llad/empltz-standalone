@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
     <head>
-		<title>lone empltz</title>
 		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
         <link rel="stylesheet" href="custom.css" />
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
@@ -49,19 +48,21 @@
 			<div data-role="fieldcontain">
 				<fieldset data-role="controlgroup" data-type="horizontal">
 				    <legend>Type:</legend>
-				         <input type="radio" name="type" id="type-1" value="mailto" checked="checked"/>
-				            <label for="type-1">Email</label>
-				            <input type="radio" name="type" id="type-2" value="sms"  />
-				            <label for="type-2">SMS</label>
+				         <input type="radio" name="type" id="mailto" value="mailto">
+				            <label for="mailto">Email</label>
+				            <input type="radio" name="type" id="sms" value="sms" >
+				            <label for="sms">SMS</label>
 				        </fieldset>
 				          <label for="name">Label:</label>
-				          <input type="text" name="name" id="name" value=""  />
+				          <input type="text" name="name" id="name" value="" >
 				    	<label for="to">To:</label>
-				        <input type="text" name="to" id="to" value=""  />
+				        <input type="email" name="to" id="to" value="" >
+						<label for="tosms">SMS To:</label>
+						<input type="tel" name="tosms" id="tosms" value="" >
 				    	<label for="subject">Subject:</label>
-				        <input type="text" name="subject" id="subject" value=""  />
+				        <input type="text" name="subject" id="subject" value="" >
 				    	<label for="body">Body:</label>
-				        <input type="text" name="body" id="body" value=""  />
+				        <input type="text" name="body" id="body" value="" >
 
 			</div>
 			<button type="submit" value="Save" data-theme="a" >Save</button>
@@ -80,21 +81,24 @@
 	<div data-role="content">
 		<form id="addForm" method="get" action="#" accept-charset="utf-8">
 			<div data-role="fieldcontain">
-                <fieldset data-role="controlgroup" data-type="horizontal">
+				<fieldset data-role="controlgroup" data-type="horizontal">
 				    <legend>Type:</legend>
-				         <input type="radio" name="type" id="type-1" value="mailto" checked="checked"/>
-				        <label for="type-1">Email</label>
-				            <input type="radio" name="type" id="type-2" value="sms"  />
-				            <label for="type-2">SMS</label>
+				         <input type="radio" name="type" id="mailto" value="mailto">
+				            <label for="mailto">Email</label>
+				            <input type="radio" name="type" id="sms" value="sms" >
+				            <label for="sms">SMS</label>
 				        </fieldset>
 				          <label for="name">Label:</label>
-				          <input type="text" name="name" id="name" value=""  />
-				    	<label for="to">To:</label>
-				        <input type="text" name="to" id="to" value=""  />
+				          <input type="text" name="name" id="name" value="" >
+				    	<label for="to" id="to">To:</label>
+				        <input type="email" name="to" id="to" value="" >
+						<label for="tosms" id="tosms">SMS To:</label>
+						<input type="tel" name="tosms" id="tosms" value="" >
 				    	<label for="subject">Subject:</label>
-				        <input type="text" name="subject" id="subject" value=""  />
+				        <input type="text" name="subject" id="subject" value="" >
 				    	<label for="body">Body:</label>
-				        <input type="text" name="body" id="body" value=""  />
+				        <input type="text" name="body" id="body" value="" >
+
 			</div>
 			<button type="submit" value="Save" data-theme="a" >Save</button>
 		</form>

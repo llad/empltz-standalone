@@ -1,6 +1,9 @@
+// Thanks to the backbone example TODO app.
+
 // A simple module to replace `Backbone.sync` with *localStorage*-based
-// persistence. Models are given GUIDS, and saved into a JSON object. Simple
-// as that.
+// persistence. Models are given GUIDS, and saved into a JSON object.
+// Modified from the example to handle models independent from collections.
+
 
 // Generate four random hex digits.
 function S4() {
@@ -24,23 +27,18 @@ _.extend(Store.prototype, {
 
     // Save the current state of the **Store** to *localStorage*.
     save: function() {
-        console.log('save');
-        console.log(JSON.stringify(this.data));
         localStorage.setItem(this.name, JSON.stringify(this.data));
     },
 
     // Add a model, giving it a (hopefully)-unique GUID, if it doesn't already
     // have an id of it's own.
-    create: function(model,type) {
-        console.log('create');
+    create: function(model) {
         if (!model.id) model.id = model.attributes.id = guid();
-        if (type === 'aModel') {
-            console.log('modelID ' + model.id);
-            console.log(this.data);
-            this.data = model.toJSON();
+        if (model.collection) {
+            this.data[model.id] = model;
         }
         else {
-            this.data[model.id] = model;
+            this.data = model.toJSON();
         }
         this.save();
         return model;
@@ -48,13 +46,11 @@ _.extend(Store.prototype, {
 
     // Update a model by replacing its copy in `this.data`.
     update: function(model, type) {
-        if (type === 'aModel') {
-            console.log('update');
-            console.log('model');
-            this.data = model;
+        if (model.collection) {
+            this.data[model.id] = model;
         }
         else {
-            this.data[model.id] = model;
+            this.data = model;
         }
         this.save();
         return model;
@@ -62,17 +58,15 @@ _.extend(Store.prototype, {
 
     // Retrieve a model from `this.data` by id.
     find: function(model,type) {
-        console.log('find');
-        if (type === 'aModel') {
-            return this.data;
+        if (model.collection) {
+            return this.data[model.id];
         }
-        return this.data[model.id];
+        return this.data;
         
     },
 
     // Return the array of all models currently in storage.
     findAll: function() {
-        console.log('findAll');
         return _.values(this.data);
     },
 
@@ -91,27 +85,17 @@ Backbone.sync = function(method, model, success, error) {
 
     var resp;
     var store = model.localStorage || model.collection.localStorage;
-    var type;
-    var modelID;
+    var collectionType = false;
+
     
-    if (!model.collection) {
-        type = 'aModel';
-        modelID = model.id;
-    } else {
-        type = 'aCollection';
-        modelID = model.id;
+    if (model.collection || model.models) {
+        collectionType = true;
     }
     
-    console.log(method);
-    console.log(model);
-    console.log(model.id);
-    
-    
-
     switch (method) {
-        case "read":    resp = model.id ? store.find(model,type) : store.findAll(); break;
-        case "create":  resp = store.create(model,type);                            break;
-        case "update":  resp = store.update(model,type);                            break;
+        case "read":    resp = collectionType ? store.findAll() : store.find(model); break;
+        case "create":  resp = store.create(model);                            break;
+        case "update":  resp = store.update(model);                            break;
         case "delete":  resp = store.destroy(model);                           break;
     }
 
