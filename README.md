@@ -1,7 +1,7 @@
 empltz-standalone
 =================
 
-empltz-standalone is email template web app for mobile devices.  It is only client-side javascript and localStorage, so no server needed.  It is an experiment in implementing jQuery Mobile for display ui and Backbone.js for MVC.
+empltz-standalone is email template web app for mobile devices.  It uses only client-side javascript and localStorage, so no server needed.  It is an experiment in implementing jQuery Mobile for display ui and Backbone.js for MVC.
 
 Usage
 -----
