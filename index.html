@@ -4,14 +4,14 @@
         <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,height=device-height,width=device-width,user-scalable = no">
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
-		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" />
         <link rel="stylesheet" href="custom.css" />
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 		<script src="support/underscore-1.1.6-min.js"></script>
 		<script src="support/backbone-0.3.3.js"></script>
 		<script src="support/backbone-localstorage.js"></script>
         <script src="code.js"></script>
-		<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script
 	</head>
 	<body>
     
@@ -22,8 +22,8 @@
 
     <div data-role="header">
 		<h1>empltz</h1>
-        <a id="optionsButton" href="#options" data-rel="dialog" data-icon="gear" class="ui-btn-left" data-iconpos="notext">Options</a>
-        <a id="addButton" href="#add" data-rel="dialog" data-icon="plus" class="ui-btn-right" data-iconpos="notext">Add</a>
+        <a id="optionsButton" href="#options" data-rel="dialog" data-transition="flip" data-icon="gear" class="ui-btn-left" data-iconpos="notext">Options</a>
+        <a id="addButton" href="#add" data-rel="dialog" data-transition="pop" data-icon="plus" class="tool-tip ui-btn-right" data-iconpos="notext"><span class="classic">Click here to add one</span></a>
 	</div><!-- /header -->
     
 
@@ -137,7 +137,7 @@
 <!-- Templates -->
 
     <script type="text/template" id="item-template">
-	 <a class="pltLink" id=<%= id %> href=<%= url %> > <%= name %> </a> <a class="pltEdit" href="#edit" data-rel="dialog" data-transition="pop" rel="external">Edit</a>
+	 <a class="pltLink" id=<%= id %> href=<%= url %> > <%= name %> </a> <a class="pltEdit" href="#edit" data-rel="dialog" data-transition="pop">Edit</a>
     </script>
 
     <script type="text/template" id="stats-template">

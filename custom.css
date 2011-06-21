@@ -1,6 +1,6 @@
 
 
-/* Thanks to http://www.andymatthews.net/ */
+/* Delete button Thanks to http://www.andymatthews.net/ */
 .aDeleteBtn {
 
     -moz-border-radius: 5px;
@@ -27,7 +27,6 @@
 
 }
 
-
 /* red color buttons */
 
 .ui-btn-up-r { border: 1px solid #953403; background: #2567ab; font-weight: bold; color: #fff; cursor: pointer;  text-shadow: 0 -1px 1px #953403; text-decoration: none; background-image: -moz-linear-gradient(top, #ec4a0b, #ad390c); background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #ec4a0b),color-stop(1, #ad390c));   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#ec4a0b', EndColorStr='#ad390c')"; }
@@ -43,3 +42,19 @@
 .ui-btn-down-r a.ui-link-inherit { color: #fff; }
 
 .ui-btn-up-r, .ui-btn-hover-r, .ui-btn-down-r { font-family: Helvetica, Arial, sans-serif; }
+
+/* Tool Tips */
+
+.tool-tip:hover span {
+  font-family: Calibri, Tahoma, Geneva, sans-serif;
+  position: absolute;
+  left: 1em;
+  top: 2em;
+  z-index: 99;
+  margin-left: 0;
+  width: 250px;
+}
+
+.classic { padding: 0.8em 1em; }
+.custom { padding: 0.5em 0.8em 0.8em 2em; }
+

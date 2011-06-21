@@ -240,6 +240,7 @@ $(function(){
 
 
             $('form#editForm').bind('submit.edit', function(e) {
+                
                 var fields = $(this).serializeArray();
                 _.each(fields, function(field, i){
                     var name = field.name;
@@ -251,7 +252,7 @@ $(function(){
                 }
                 delete plt.tosms;
                 thisPlt.save(plt);
-                $.mobile.changePage('list','pop',true);
+                $.mobile.changePage('#list','pop',true);
                 $('this').unbind('submit.edit');
                 return false;
             });
@@ -293,17 +294,31 @@ $(function(){
 
         initialize: function() {
 
-            _.bindAll(this, 'addNew', 'addOne', 'addAll', 'updateList');
+            _.bindAll(this, 'addNew', 'addOne', 'addAll',
+            'updateList', 'render');
 
 
             Pltz.bind('add',    this.addNew);
             Pltz.bind('refresh', this.addAll);
             Pltz.bind('change', this.updateList);
             Pltz.bind('remove', this.updateList);
+            Pltz.bind('all',     this.render);
 
             Pltz.fetch();
             userOptions.fetch();
 
+        },
+        
+        render: function() {
+            if (Pltz.length === 0) {
+                $('#listart').hide();
+                $('#liend').hide();
+                
+            }
+            else {
+                $('#listart').show();
+                $('#liend').show();
+            }
         },
 
         // Add a single plt right before the ending list divider
@@ -405,7 +420,7 @@ $(function(){
                 
                 // Create the new plt
                 Pltz.create(plt);
-                $.mobile.changePage('list','pop',true);
+                $.mobile.changePage('#list','pop',true);
                 return false;
             });
         },
@@ -438,7 +453,7 @@ $(function(){
                     userOptions.attributes[name] = (field.value === 'true');
                 });
                 userOptions.save();     
-                $.mobile.changePage('list','pop',true);
+                $.mobile.changePage('#list','flip',true);
                 $('this').unbind('submit.options');
                 return false;
             });
